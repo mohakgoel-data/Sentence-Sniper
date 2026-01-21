@@ -1,0 +1,131 @@
+/* Reset & Layout */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #222;
+}
+
+/* --- UI Layer --- */
+#ui-layer {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    z-index: 100;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #000;
+}
+
+#message-display {
+    font-size: 0.9rem;
+    color: #ffd700; /* Gold */
+    margin-top: 5px;
+}
+
+/* --- Zone 1: Firing Range (Top 75%) --- */
+#firing-range {
+    height: 75vh;
+    width: 100%;
+    background: radial-gradient(circle, #4b6cb7 0%, #182848 100%); /* Sky/Night gradient */
+    position: relative;
+    cursor: crosshair; /* Adds to the sniper feel */
+}
+
+/* The Target styling */
+.target {
+    position: absolute;
+    background-color: #fff;
+    color: #333;
+    padding: 10px 15px;
+    border: 4px solid #d32f2f; /* Red border */
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+    user-select: none;
+    transition: transform 0.1s;
+}
+
+.target:active {
+    transform: scale(0.95);
+}
+
+/* The "Bullet Hole" effect */
+.target.shot {
+    background-color: #ccc; /* Dimmed */
+    color: #888;
+    border-color: #555;
+    pointer-events: none; /* Cannot shoot twice */
+}
+
+.target.shot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 15px;
+    height: 15px;
+    background-color: black;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3); /* Torn paper edge */
+}
+
+/* --- Zone 2: Sentence Dock (Bottom 25%) --- */
+#sentence-dock {
+    height: 25vh;
+    background-color: #333;
+    border-top: 5px solid #d32f2f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+/* The words inside the dock */
+.dock-word {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    animation: slideIn 0.2s ease-out;
+}
+
+/* Animation for wrong answer reset */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- Modal --- */
+.hidden { display: none !important; }
+
+#game-over-modal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.8);
+    z-index: 200;
+}

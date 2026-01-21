@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentence Sniper</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div class="timer-box">Time: <span id="timer">00:00</span></div>
+        <div id="message-display">Shoot the words in order!</div>
+    </div>
+
+    <div id="firing-range">
+        </div>
+
+    <div id="sentence-dock">
+        </div>
+
+    <div id="game-over-modal" class="hidden">
+        <h1>Mission Accomplished!</h1>
+        <p>Final Time: <span id="final-time"></span></p>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
