@@ -9,8 +9,8 @@
 <body>
 
     <div id="ui-layer">
-        <div class="timer-box">Time: <span id="timer">00:00</span></div>
-        <div id="message-display">Shoot the words in order!</div>
+        <div class="hud-item">Time: <span id="timer">00:00</span></div>
+        <button id="reset-btn" onclick="fullReset()">↻ Reset Mission</button>
     </div>
 
     <div id="firing-range">
@@ -20,9 +20,9 @@
         </div>
 
     <div id="game-over-modal" class="hidden">
-        <h1>Mission Accomplished!</h1>
+        <h1>Mission Complete!</h1>
         <p>Final Time: <span id="final-time"></span></p>
-        <button onclick="location.reload()">Play Again</button>
+        <button onclick="fullReset()">Play Again</button>
     </div>
 
     <script src="script.js"></script>
