@@ -1,4 +1,4 @@
-/* Reset & Base */
+
 body, html {
     margin: 0;
     padding: 0;
@@ -9,7 +9,7 @@ body, html {
     color: white;
 }
 
-/* --- UI Layer --- */
+
 #ui-layer {
     position: absolute;
     top: 0;
@@ -54,12 +54,12 @@ body, html {
 #reset-btn { background-color: #d32f2f; color: white; }
 #reset-btn:hover { background-color: #b71c1c; }
 
-/* --- Zone 1: Firing Range --- */
+
 #firing-range {
     height: 70vh;
     width: 100%;
     background: radial-gradient(circle at center, #333 0%, #000 100%);
-    padding: 80px 40px 100px 40px; /* Extra bottom padding for gun */
+    padding: 80px 40px 100px 40px; 
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap; 
@@ -70,42 +70,66 @@ body, html {
     z-index: 5;
 }
 
-/* --- THE GUN --- */
+
 #gun-container {
     position: absolute;
-    top: 60vh; /* Positioning it near the division line */
+    top: 52vh;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
     z-index: 10;
-    pointer-events: none; /* Let clicks pass through if needed */
+    pointer-events: none;
+    display: flex;
+    justify-content: center; 
 }
 
 #handgun {
-    width: 90%;
+    width: 100%;
     height: auto;
     filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8));
-    transition: transform 0.05s;
+    transform-origin: center center;
 }
 
-/* Recoil Animation Class */
 .recoil {
-    animation: kickback 0.1s ease-out;
+    animation: gunShake 0.1s linear;
 }
 
-@keyframes kickback {
-    0% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(15px) scale(0.95); }
-    100% { transform: translateY(0) scale(1); }
+@keyframes gunShake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-3px, 2px) rotate(-1deg); }
+    50% { transform: translate(3px, -4px) rotate(1deg); }
+    75% { transform: translate(-2px, 1px) rotate(0deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* --- Zone 2: Sentence Dock --- */
+#muzzle-flash {
+    position: absolute;
+    top: -40px;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(255,255,230,1) 0%, rgba(255,215,0,0.8) 40%, rgba(255,69,0,0) 70%);
+    border-radius: 50%;
+    opacity: 0; 
+    z-index: 11;
+    mix-blend-mode: screen; 
+}
+
+.flash-active {
+    animation: muzzleFlashAnim 0.1s ease-out forwards;
+}
+
+@keyframes muzzleFlashAnim {
+    0% { opacity: 1; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(1.4); }
+}
+
 #sentence-dock {
     height: 30vh;
     background-color: #eee;
     color: #222;
-    border-top: 10px solid #222; /* Thicker divider */
+    border-top: 10px solid #222;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -119,7 +143,6 @@ body, html {
     z-index: 5;
 }
 
-/* Words */
 #placeholder-text {
     color: #999;
     font-style: italic;
@@ -140,7 +163,7 @@ body, html {
     to { transform: translateY(0); opacity: 1; }
 }
 
-/* --- Target Styles --- */
+
 .target {
     position: relative;
     background-color: #f0f0f0;
@@ -183,7 +206,7 @@ body, html {
     box-shadow: inset 2px 2px 5px rgba(0,0,0,1), 0 0 0 2px rgba(255,255,255,0.2);
 }
 
-/* --- Overlays --- */
+
 #start-screen, #game-over-modal {
     position: absolute;
     top: 0; left: 0;
@@ -230,7 +253,7 @@ h1 { font-size: 3rem; margin-bottom: 10px; color: #d32f2f; text-transform: upper
 }
 .big-btn:hover { background: #ff5252; transform: scale(1.05); }
 
-/* Shake Animation */
+
 .shake { animation: shake 0.4s; }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }

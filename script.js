@@ -1,4 +1,3 @@
-// --- Configuration ---
 const SENTENCES = [
     "Variables Store Data For Later Use",
     "JavaScript Controls The Web Page Behavior",
@@ -9,7 +8,7 @@ const SENTENCES = [
     "Please Turn Off The Kitchen Light"
 ];
 
-// --- Global Elements ---
+
 const rangeElement = document.getElementById('firing-range');
 const dockElement = document.getElementById('sentence-dock');
 const timerElement = document.getElementById('timer');
@@ -19,68 +18,53 @@ const placeholder = document.getElementById('placeholder-text');
 const currStreakEl = document.getElementById('curr-streak');
 const bestStreakEl = document.getElementById('best-streak');
 const gunElement = document.getElementById('handgun');
+const flashElement = document.getElementById('muzzle-flash');
+const shotSound = document.getElementById('gunshot-sound');
 
-// --- State Variables ---
-let availableSentences = []; // Copy of master list
+
+let availableSentences = []; 
 let currentTargetSentence = "";
 let targetWords = [];
 let currentInput = [];
 
-// Timer State
 let startTime;
 let accumulatedTime = 0;
 let timerInterval = null;
 
-// Game State
 let isGameActive = false;
 let currentStreak = 0;
 let bestStreak = 0;
 let mistakeMadeInRound = false;
 
-// --- 1. Game Flow Controls ---
 
-// Start New Session (Reset everything except Best Streak)
 function startGame() {
     startScreen.classList.add('hidden');
-    
-    // 1. Refill the pool of sentences
     availableSentences = [...SENTENCES];
-    
-    // 2. Reset Session Stats
     accumulatedTime = 0;
     currentStreak = 0;
     updateStreakUI();
-    
-    // 3. Start Level
     initRound();
 }
 
-// Next Level Logic
 function nextMission() {
-    // Check if any sentences are left
     if (availableSentences.length === 0) {
-        // ALL CLEARED - Go back to Title
         goToTitle(); 
     } else {
-        // KEEP GOING
         modalElement.classList.add('hidden');
         initRound();
     }
 }
 
-// Abort / Finish / Restart Logic
 function goToTitle() {
     if (timerInterval) clearInterval(timerInterval);
     isGameActive = false;
     
-    // Clear UI
     rangeElement.innerHTML = ''; 
     dockElement.innerHTML = '';
     dockElement.appendChild(placeholder);
     placeholder.style.display = 'block';
     timerElement.textContent = "00:00";
     
-    // Reset Current Streak (Best Streak stays)
     currentStreak = 0;
     updateStreakUI();
 
@@ -88,7 +72,6 @@ function goToTitle() {
     startScreen.classList.remove('hidden');
 }
 
-// Internal function to set up the board
 function initRound() {
     if (timerInterval) clearInterval(timerInterval);
     
@@ -96,31 +79,21 @@ function initRound() {
     isGameActive = true;
     mistakeMadeInRound = false;
     
-    // --- PICK UNIQUE SENTENCE ---
-    // Pick random index from AVAILABLE pool
     const randomIndex = Math.floor(Math.random() * availableSentences.length);
-    
-    // Extract it
     currentTargetSentence = availableSentences[randomIndex];
-    
-    // Remove it from the pool so it doesn't repeat this session
     availableSentences.splice(randomIndex, 1);
-    
     targetWords = currentTargetSentence.split(" ");
 
-    // Reset Dock UI
     dockElement.innerHTML = ''; 
     dockElement.appendChild(placeholder);
     placeholder.style.display = 'block';
     
-    // Start Timer (Resume from accumulated)
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
     
     spawnTargets();
 }
 
-// --- 2. Spawning Logic ---
 
 function spawnTargets() {
     rangeElement.innerHTML = ''; 
@@ -135,44 +108,40 @@ function spawnTargets() {
     });
 }
 
-// --- 3. Gameplay Logic ---
 
 function handleShot(word, targetElement) {
     if (!isGameActive) return;
 
-    // --- GUN ANIMATION ---
     triggerGunRecoil();
 
-    // Visual: Mark target as shot
     targetElement.classList.add('shot');
-    
     if (currentInput.length === 0) placeholder.style.display = 'none';
 
-    // Logic: Add to input
     currentInput.push(word);
     
-    // Visual: Add to Dock
     const wordSpan = document.createElement('span');
     wordSpan.classList.add('dock-word');
     wordSpan.textContent = word;
     dockElement.appendChild(wordSpan);
 
-    // Check Win
     if (currentInput.length === targetWords.length) {
         validateSentence();
     }
 }
 
 function triggerGunRecoil() {
-    // Remove class if it exists to reset animation
+    shotSound.currentTime = 0;
+    shotSound.play();
+
     gunElement.classList.remove('recoil');
-    // Force reflow (magic browser hack to restart animation)
+    flashElement.classList.remove('flash-active');
+    
     void gunElement.offsetWidth; 
-    // Add class back
+    
     gunElement.classList.add('recoil');
+    flashElement.classList.add('flash-active');
 }
 
-// --- 4. Validation & Win/Loss ---
 
 function validateSentence() {
     const playerSentence = currentInput.join(" ");
@@ -188,11 +157,9 @@ function handleWin() {
     clearInterval(timerInterval);
     isGameActive = false;
 
-    // Save Time
     const now = Date.now();
     accumulatedTime += (now - startTime);
 
-    // Streak Logic
     if (!mistakeMadeInRound) {
         currentStreak++;
         if (currentStreak > bestStreak) bestStreak = currentStreak;
@@ -205,12 +172,10 @@ function handleWin() {
     }
     updateStreakUI();
 
-    // Update Modal
     document.getElementById('final-time').textContent = formatTime(accumulatedTime / 1000);
     document.getElementById('modal-streak').textContent = currentStreak;
     document.getElementById('modal-best').textContent = bestStreak;
     
-    // Logic: Was this the last sentence?
     const nextBtn = document.getElementById('next-btn');
     const msg = document.getElementById('remaining-msg');
     
@@ -236,7 +201,6 @@ function handleMistake() {
     }, 800);
 }
 
-// --- 5. Utilities ---
 
 function clearInput() {
     if (!isGameActive) return;
