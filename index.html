@@ -10,9 +10,14 @@
 
     <div id="ui-layer">
         <div class="hud-item">Time: <span id="timer">00:00</span></div>
+        
+        <div class="hud-item streak-info">
+            Streak: <span id="curr-streak">0</span> <span style="color:#888">|</span> Best: <span id="best-streak">0</span>
+        </div>
+        
         <div class="hud-controls">
             <button id="clear-btn" onclick="clearInput()">Clear Line</button>
-            <button id="reset-btn" onclick="initGame()">Restart</button>
+            <button id="reset-btn" onclick="goToTitle()">Restart</button>
         </div>
     </div>
 
@@ -20,18 +25,27 @@
 
     <div id="sentence-dock">
         <span id="placeholder-text">Shot words appear here...</span>
-        </div>
+    </div>
 
     <div id="start-screen">
         <h1>SENTENCE SNIPER</h1>
-        <p>Shoot the words in the correct order to form the sentence.</p>
+        <p>Shoot the words in the correct order.</p>
+        <p style="font-size: 0.9rem; color: #888;">Timer pauses between missions.</p>
         <button class="big-btn" onclick="startGame()">START MISSION</button>
     </div>
 
     <div id="game-over-modal" class="hidden">
         <h1>Mission Complete!</h1>
-        <p>Final Time: <span id="final-time"></span></p>
-        <button class="big-btn" onclick="initGame()">Next Mission</button>
+        
+        <div class="modal-stats">
+            <p>Total Time: <span id="final-time">00:00</span></p>
+            <p>Current Streak: <span id="modal-streak">0</span></p>
+            <p>Best Streak: <span id="modal-best">0</span></p>
+        </div>
+
+        <p id="streak-msg"></p>
+        
+        <button class="big-btn" onclick="nextMission()">Next Mission</button>
     </div>
 
     <script src="script.js"></script>
