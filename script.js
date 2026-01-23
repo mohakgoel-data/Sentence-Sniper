@@ -1,3 +1,4 @@
+// --- Configuration ---
 const SENTENCES = [
     "Variables Store Data For Later Use",
     "JavaScript Controls The Web Page Behavior",
@@ -17,15 +18,17 @@ const modalElement = document.getElementById('game-over-modal');
 const placeholder = document.getElementById('placeholder-text');
 const currStreakEl = document.getElementById('curr-streak');
 const bestStreakEl = document.getElementById('best-streak');
+const gunElement = document.getElementById('handgun');
 
 // --- State Variables ---
+let availableSentences = []; // Copy of master list
 let currentTargetSentence = "";
 let targetWords = [];
 let currentInput = [];
 
 // Timer State
 let startTime;
-let accumulatedTime = 0; // Stores time from previous rounds
+let accumulatedTime = 0;
 let timerInterval = null;
 
 // Game State
@@ -36,27 +39,36 @@ let mistakeMadeInRound = false;
 
 // --- 1. Game Flow Controls ---
 
-// Called from Main Menu (Resets EVERYTHING)
+// Start New Session (Reset everything except Best Streak)
 function startGame() {
     startScreen.classList.add('hidden');
     
-    // Reset Timer totals
-    accumulatedTime = 0;
+    // 1. Refill the pool of sentences
+    availableSentences = [...SENTENCES];
     
-    // Reset Streaks for new session
+    // 2. Reset Session Stats
+    accumulatedTime = 0;
     currentStreak = 0;
     updateStreakUI();
     
+    // 3. Start Level
     initRound();
 }
 
-// Called from "Next Mission" Button (Keeps time & streak)
+// Next Level Logic
 function nextMission() {
-    modalElement.classList.add('hidden');
-    initRound();
+    // Check if any sentences are left
+    if (availableSentences.length === 0) {
+        // ALL CLEARED - Go back to Title
+        goToTitle(); 
+    } else {
+        // KEEP GOING
+        modalElement.classList.add('hidden');
+        initRound();
+    }
 }
 
-// Called from "Restart" Button (Quits to Title)
+// Abort / Finish / Restart Logic
 function goToTitle() {
     if (timerInterval) clearInterval(timerInterval);
     isGameActive = false;
@@ -68,22 +80,32 @@ function goToTitle() {
     placeholder.style.display = 'block';
     timerElement.textContent = "00:00";
     
+    // Reset Current Streak (Best Streak stays)
+    currentStreak = 0;
+    updateStreakUI();
+
     modalElement.classList.add('hidden');
     startScreen.classList.remove('hidden');
 }
 
 // Internal function to set up the board
 function initRound() {
-    // Stop any existing timer logic
     if (timerInterval) clearInterval(timerInterval);
     
     currentInput = [];
     isGameActive = true;
-    mistakeMadeInRound = false; // Reset mistake tracker
+    mistakeMadeInRound = false;
     
-    // Pick Random Sentence
-    const randomIndex = Math.floor(Math.random() * SENTENCES.length);
-    currentTargetSentence = SENTENCES[randomIndex];
+    // --- PICK UNIQUE SENTENCE ---
+    // Pick random index from AVAILABLE pool
+    const randomIndex = Math.floor(Math.random() * availableSentences.length);
+    
+    // Extract it
+    currentTargetSentence = availableSentences[randomIndex];
+    
+    // Remove it from the pool so it doesn't repeat this session
+    availableSentences.splice(randomIndex, 1);
+    
     targetWords = currentTargetSentence.split(" ");
 
     // Reset Dock UI
@@ -108,9 +130,7 @@ function spawnTargets() {
         const el = document.createElement('div');
         el.classList.add('target');
         el.textContent = word;
-        
         el.addEventListener('click', () => handleShot(word, el));
-        
         rangeElement.appendChild(el);
     });
 }
@@ -120,13 +140,13 @@ function spawnTargets() {
 function handleShot(word, targetElement) {
     if (!isGameActive) return;
 
+    // --- GUN ANIMATION ---
+    triggerGunRecoil();
+
     // Visual: Mark target as shot
     targetElement.classList.add('shot');
     
-    // Remove placeholder on first shot
-    if (currentInput.length === 0) {
-        placeholder.style.display = 'none';
-    }
+    if (currentInput.length === 0) placeholder.style.display = 'none';
 
     // Logic: Add to input
     currentInput.push(word);
@@ -143,6 +163,15 @@ function handleShot(word, targetElement) {
     }
 }
 
+function triggerGunRecoil() {
+    // Remove class if it exists to reset animation
+    gunElement.classList.remove('recoil');
+    // Force reflow (magic browser hack to restart animation)
+    void gunElement.offsetWidth; 
+    // Add class back
+    gunElement.classList.add('recoil');
+}
+
 // --- 4. Validation & Win/Loss ---
 
 function validateSentence() {
@@ -156,45 +185,54 @@ function validateSentence() {
 }
 
 function handleWin() {
-    // 1. Pause Timer
     clearInterval(timerInterval);
     isGameActive = false;
 
-    // 2. Save Time for next round
+    // Save Time
     const now = Date.now();
     accumulatedTime += (now - startTime);
 
-    // 3. Handle Streak
+    // Streak Logic
     if (!mistakeMadeInRound) {
         currentStreak++;
         if (currentStreak > bestStreak) bestStreak = currentStreak;
-        document.getElementById('streak-msg').textContent = "Perfect Run! Streak Increased!";
+        document.getElementById('streak-msg').textContent = "Perfect! Streak +1";
         document.getElementById('streak-msg').style.color = "#4CAF50";
     } else {
         currentStreak = 0;
-        document.getElementById('streak-msg').textContent = "Completed (with errors). Streak Reset.";
+        document.getElementById('streak-msg').textContent = "Mistakes made. Streak reset.";
         document.getElementById('streak-msg').style.color = "#ff9800";
     }
     updateStreakUI();
 
-    // 4. Update Modal Stats
+    // Update Modal
     document.getElementById('final-time').textContent = formatTime(accumulatedTime / 1000);
     document.getElementById('modal-streak').textContent = currentStreak;
     document.getElementById('modal-best').textContent = bestStreak;
+    
+    // Logic: Was this the last sentence?
+    const nextBtn = document.getElementById('next-btn');
+    const msg = document.getElementById('remaining-msg');
+    
+    if (availableSentences.length === 0) {
+        document.getElementById('modal-title').textContent = "SESSION COMPLETE!";
+        msg.textContent = "All sentences cleared! Returning to menu...";
+        nextBtn.textContent = "Finish Session";
+    } else {
+        document.getElementById('modal-title').textContent = "Mission Complete!";
+        msg.textContent = `${availableSentences.length} missions remaining.`;
+        nextBtn.textContent = "Next Mission";
+    }
 
-    // 5. Show Modal
     modalElement.classList.remove('hidden');
 }
 
 function handleMistake() {
     mistakeMadeInRound = true;
-    
-    // Shake animation
     dockElement.classList.add('shake');
-    
     setTimeout(() => {
         dockElement.classList.remove('shake');
-        clearInput(); // Force clear on mistake
+        clearInput(); 
     }, 800);
 }
 
@@ -202,15 +240,11 @@ function handleMistake() {
 
 function clearInput() {
     if (!isGameActive) return;
-    
-    // Penalize streak if cleared manually
     mistakeMadeInRound = true;
-
     currentInput = [];
     dockElement.innerHTML = '';
     dockElement.appendChild(placeholder);
     placeholder.style.display = 'block';
-
     const targets = document.querySelectorAll('.target');
     targets.forEach(t => t.classList.remove('shot'));
 }
@@ -221,10 +255,8 @@ function updateStreakUI() {
 }
 
 function updateTimer() {
-    // Current round duration + previously accumulated time
     const currentRoundDuration = Date.now() - startTime;
     const totalDuration = accumulatedTime + currentRoundDuration;
-    
     timerElement.textContent = formatTime(totalDuration / 1000);
 }
 

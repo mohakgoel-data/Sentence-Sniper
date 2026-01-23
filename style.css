@@ -15,13 +15,13 @@ body, html {
     top: 0;
     width: 100%;
     height: 60px;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     box-sizing: border-box;
-    z-index: 10;
+    z-index: 20;
     border-bottom: 2px solid #444;
 }
 
@@ -59,89 +59,45 @@ body, html {
     height: 70vh;
     width: 100%;
     background: radial-gradient(circle at center, #333 0%, #000 100%);
-    padding: 100px 40px 40px 40px;
+    padding: 80px 40px 100px 40px; /* Extra bottom padding for gun */
     box-sizing: border-box;
     display: flex;
     flex-wrap: wrap; 
     justify-content: center;
     align-content: center; 
     gap: 30px;
-}
-
-/* The Target */
-.target {
     position: relative;
-    background-color: #f0f0f0;
-    color: #111;
-    padding: 20px 30px;
-    min-width: 100px;
-    text-align: center;
-    
-    /* Typography */
-    font-size: 2rem;
-    font-weight: 900;
-    
-    cursor: crosshair;
-    user-select: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    transition: transform 0.1s;
-    
-    /* Decoration */
-    border: 4px solid #d32f2f;
-    border-radius: 5px;
+    z-index: 5;
 }
 
-/* Bullseye decoration */
-.target::before {
-    content: '';
+/* --- THE GUN --- */
+#gun-container {
     position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%; height: 80%;
-    border: 1px dashed #999;
-    pointer-events: none;
+    top: 60vh; /* Positioning it near the division line */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass through if needed */
 }
 
-.target:hover {
-    transform: scale(1.05);
-    background-color: #fff;
-    box-shadow: 0 0 25px rgba(211, 47, 47, 0.4);
+#handgun {
+    width: 90%;
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.8));
+    transition: transform 0.05s;
 }
 
-.target:active {
-    transform: scale(0.95);
+/* Recoil Animation Class */
+.recoil {
+    animation: kickback 0.1s ease-out;
 }
 
-/* --- SHOT STATE (The Bullet Hole Logic) --- */
-.target.shot {
-    /* Don't hide it completely, just dim it and make it unclickable */
-    background-color: #888; 
-    color: #555;
-    border-color: #444;
-    pointer-events: none;
-    box-shadow: none;
-}
-
-/* The Bullet Hole */
-.target.shot::after {
-    content: '';
-    position: absolute;
-    
-    /* Center the hole */
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    
-    width: 25px; 
-    height: 25px;
-    
-    /* Visuals */
-    background-color: #111; /* Dark hole */
-    border-radius: 50%;
-    box-shadow: 
-        inset 2px 2px 5px rgba(0,0,0,1), /* Inner shadow for depth */
-        0 0 0 2px rgba(255,255,255,0.2); /* Torn paper edge */
-        
-    z-index: 2; /* Sit on top of text */
+@keyframes kickback {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(15px) scale(0.95); }
+    100% { transform: translateY(0) scale(1); }
 }
 
 /* --- Zone 2: Sentence Dock --- */
@@ -149,7 +105,7 @@ body, html {
     height: 30vh;
     background-color: #eee;
     color: #222;
-    border-top: 5px solid #444;
+    border-top: 10px solid #222; /* Thicker divider */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -159,8 +115,11 @@ body, html {
     font-size: 2rem;
     font-weight: bold;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 5;
 }
 
+/* Words */
 #placeholder-text {
     color: #999;
     font-style: italic;
@@ -173,12 +132,55 @@ body, html {
     border-bottom: 3px solid transparent;
 }
 .dock-word:last-child {
-    border-bottom: 3px solid #d32f2f; /* Cursor effect */
+    border-bottom: 3px solid #d32f2f;
 }
 
 @keyframes slideUp {
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- Target Styles --- */
+.target {
+    position: relative;
+    background-color: #f0f0f0;
+    color: #111;
+    padding: 20px 30px;
+    min-width: 100px;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    cursor: crosshair;
+    user-select: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
+    border: 4px solid #d32f2f;
+    border-radius: 5px;
+}
+
+.target:hover {
+    transform: scale(1.05);
+    background-color: #fff;
+    box-shadow: 0 0 25px rgba(211, 47, 47, 0.4);
+}
+
+.target.shot {
+    background-color: #888; 
+    color: #555;
+    border-color: #444;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.target.shot::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 25px; height: 25px;
+    background-color: #111;
+    border-radius: 50%;
+    box-shadow: inset 2px 2px 5px rgba(0,0,0,1), 0 0 0 2px rgba(255,255,255,0.2);
 }
 
 /* --- Overlays --- */
@@ -211,16 +213,10 @@ body, html {
     justify-content: space-between;
 }
 
-.modal-stats span {
-    font-weight: bold;
-    color: #ffd700;
-}
-
+.modal-stats span { font-weight: bold; color: #ffd700; }
 .hidden { display: none !important; }
 
-h1 { font-size: 3rem; margin-bottom: 10px; color: #d32f2f; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px #d32f2f; }
-p { font-size: 1.2rem; margin-bottom: 30px; color: #ccc; }
-
+h1 { font-size: 3rem; margin-bottom: 10px; color: #d32f2f; text-transform: uppercase; letter-spacing: 3px; }
 .big-btn {
     padding: 15px 40px;
     font-size: 1.5rem;
@@ -231,10 +227,8 @@ p { font-size: 1.2rem; margin-bottom: 30px; color: #ccc; }
     font-weight: bold;
     text-transform: uppercase;
     transition: all 0.2s;
-    border: 2px solid transparent;
 }
-
-.big-btn:hover { background: #ff5252; border-color: white; transform: scale(1.05); }
+.big-btn:hover { background: #ff5252; transform: scale(1.05); }
 
 /* Shake Animation */
 .shake { animation: shake 0.4s; }
