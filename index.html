@@ -10,19 +10,28 @@
 
     <div id="ui-layer">
         <div class="hud-item">Time: <span id="timer">00:00</span></div>
-        <button id="reset-btn" onclick="fullReset()">↻ Reset Mission</button>
+        <div class="hud-controls">
+            <button id="clear-btn" onclick="clearInput()">Clear Line</button>
+            <button id="reset-btn" onclick="initGame()">Restart</button>
+        </div>
     </div>
 
-    <div id="firing-range">
-        </div>
+    <div id="firing-range"></div>
 
     <div id="sentence-dock">
+        <span id="placeholder-text">Shot words appear here...</span>
         </div>
+
+    <div id="start-screen">
+        <h1>SENTENCE SNIPER</h1>
+        <p>Shoot the words in the correct order to form the sentence.</p>
+        <button class="big-btn" onclick="startGame()">START MISSION</button>
+    </div>
 
     <div id="game-over-modal" class="hidden">
         <h1>Mission Complete!</h1>
         <p>Final Time: <span id="final-time"></span></p>
-        <button onclick="fullReset()">Play Again</button>
+        <button class="big-btn" onclick="initGame()">Next Mission</button>
     </div>
 
     <script src="script.js"></script>

@@ -4,7 +4,7 @@ body, html {
     padding: 0;
     height: 100%;
     overflow: hidden;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Courier New', Courier, monospace; /* Typewriter feel */
     background-color: #1a1a1a;
     color: white;
 }
@@ -15,13 +15,14 @@ body, html {
     top: 0;
     width: 100%;
     height: 60px;
-    background: rgba(0, 0, 0, 0.6); /* Slightly darker */
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     box-sizing: border-box;
     z-index: 10;
+    border-bottom: 1px solid #444;
 }
 
 .hud-item {
@@ -30,72 +31,73 @@ body, html {
     color: #ffd700;
 }
 
-#reset-btn {
-    background-color: #d32f2f;
-    color: white;
+.hud-controls button {
+    margin-left: 10px;
+    padding: 8px 15px;
     border: none;
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    font-weight: bold;
     border-radius: 4px;
+    font-weight: bold;
     cursor: pointer;
+    font-family: inherit;
     text-transform: uppercase;
 }
 
-#reset-btn:hover {
-    background-color: #b71c1c;
-}
+#clear-btn { background-color: #ff9800; color: #000; }
+#clear-btn:hover { background-color: #e68900; }
 
-/* --- Zone 1: Firing Range (Top 70%) --- */
+#reset-btn { background-color: #d32f2f; color: white; }
+#reset-btn:hover { background-color: #b71c1c; }
+
+/* --- Zone 1: Firing Range --- */
 #firing-range {
     height: 70vh;
     width: 100%;
-    background: radial-gradient(circle at center, #2b2b2b 0%, #000 100%);
-    padding-top: 100px; /* More space from top */
-    padding-left: 5%;
-    padding-right: 5%;
+    background: radial-gradient(circle at center, #333 0%, #111 100%);
+    padding: 80px 20px 20px 20px;
     box-sizing: border-box;
     
-    /* Layout: Organic "Cloud" style */
+    /* Layout */
     display: flex;
     flex-wrap: wrap; 
     justify-content: center;
-    align-content: flex-start; 
-    gap: 30px; /* Big gap to prevent accidental clicks */
+    align-content: center; 
+    gap: 25px;
 }
 
-/* The Target (Now sized to the word!) */
+/* The Target Style - Looks like a cardboard cutout */
 .target {
-    /* Auto Size based on text length */
-    width: auto;
-    height: auto;
-    
-    /* Visual Style: Floating Pill */
-    background-color: rgba(255, 255, 255, 0.1); /* Subtle glass effect */
-    color: #fff;
-    padding: 15px 30px; /* Big clickable area */
-    border-radius: 50px; /* Pill shape */
-    
-    /* Typography */
-    font-size: 2rem; 
-    font-weight: bold;
-    letter-spacing: 1px;
-    
-    /* Interaction */
+    position: relative;
+    background-color: #e0e0e0;
+    color: #000;
+    padding: 10px 25px;
+    font-size: 1.8rem;
+    font-weight: 900;
     cursor: crosshair;
-    transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
     user-select: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    transition: transform 0.1s;
     
-    /* No Borders! */
-    border: none;
+    /* Create a "Bullseye" feel with borders */
+    border: 4px solid #d32f2f;
+    border-radius: 2px; /* Slight rounded corners, mostly square */
 }
 
-/* Hover Effect to show it's clickable */
+/* Add concentric rings using pseudo-elements */
+.target::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%; height: 140%;
+    border: 1px dashed #555; /* Guidance line */
+    z-index: -1;
+    opacity: 0.3;
+}
+
 .target:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    background-color: white;
+    box-shadow: 0 0 20px rgba(211, 47, 47, 0.6);
 }
 
 .target:active {
@@ -104,91 +106,90 @@ body, html {
 
 /* Shot State */
 .target.shot {
-    opacity: 0.3;
+    opacity: 0.2;
     pointer-events: none;
-    transform: scale(0.9);
-    background-color: transparent;
-    color: #555;
-    text-decoration: line-through; /* Cross out the word */
-    box-shadow: none;
+    background-color: #555;
+    border-color: #444;
 }
 
-/* Bullet Hole Graphic (Optional - keeping it subtle) */
-.target.shot::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 30px;
-    height: 30px;
-    background: radial-gradient(circle, black 30%, transparent 70%);
-    border-radius: 50%;
-}
-
-/* --- Zone 2: Sentence Dock (Bottom 30%) --- */
+/* --- Zone 2: Sentence Dock --- */
 #sentence-dock {
     height: 30vh;
-    background-color: #111;
-    border-top: 2px solid #333; /* Subtle divider */
+    background-color: #eee; /* Paper color */
+    color: #222;
+    border-top: 5px solid #333;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    gap: 15px;
     padding: 20px;
     box-sizing: border-box;
-}
-
-.dock-slot {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 1.2rem;
+    font-size: 2rem;
     font-weight: bold;
-    animation: popIn 0.2s ease-out;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
 }
 
-/* Shake Animation */
+#placeholder-text {
+    color: #999;
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+/* The words inside the dock (No boxes, just text) */
+.dock-word {
+    margin: 0 6px; /* Spacing between words */
+    border-bottom: 2px solid transparent;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Decoration: Underline the last word added */
+.dock-word:last-child {
+    border-bottom: 3px solid #d32f2f; 
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Overlays --- */
+#start-screen, #game-over-modal {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    color: white;
+}
+
+.hidden { display: none !important; }
+
+h1 { font-size: 3rem; margin-bottom: 10px; color: #d32f2f; text-transform: uppercase; letter-spacing: 5px; }
+p { font-size: 1.2rem; margin-bottom: 30px; color: #ccc; }
+
+.big-btn {
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+}
+
+.big-btn:hover { background: #ff5252; transform: scale(1.05); }
+
+/* Shake Animation for Wrong Answer */
+.shake { animation: shake 0.4s; }
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-10px); }
     75% { transform: translateX(10px); }
-}
-.shake { animation: shake 0.4s; }
-
-@keyframes popIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-
-/* Modal */
-.hidden { display: none !important; }
-
-#game-over-modal {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: #222;
-    color: white;
-    padding: 40px;
-    text-align: center;
-    border-radius: 15px;
-    border: 1px solid #444;
-    box-shadow: 0 0 50px rgba(0,0,0,0.9);
-    z-index: 100;
-}
-
-#game-over-modal button {
-    margin-top: 20px;
-    padding: 10px 25px;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    font-size: 1.1rem;
-    cursor: pointer;
-    border-radius: 5px;
-    font-weight: bold;
 }

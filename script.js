@@ -1,52 +1,73 @@
-// --- Config ---
-// EXACTLY 8 words for the grid layout
-const SENTENCE = "the surgeon repaired the artery during emergency surgery"; 
-const WORDS = SENTENCE.split(" ");
+// --- Configuration ---
+const SENTENCES = [
+    "the cat sleeps on the sofa",
+    "she placed the book on the table",
+    "i locked the door before leaving",
+    "rain fell softly during the night",
+    "please turn off the kitchen light"
+];
+
+// --- Global Elements ---
 const rangeElement = document.getElementById('firing-range');
 const dockElement = document.getElementById('sentence-dock');
 const timerElement = document.getElementById('timer');
+const startScreen = document.getElementById('start-screen');
 const modalElement = document.getElementById('game-over-modal');
+const placeholder = document.getElementById('placeholder-text');
 
-// --- State ---
+// --- State Variables ---
+let currentTargetSentence = "";
+let targetWords = [];
 let currentInput = [];
 let startTime;
 let timerInterval = null;
 let isGameActive = false;
 
-// --- Core Functions ---
+// --- 1. Game Flow Controls ---
 
-function fullReset() {
-    // 1. Stop any existing timer
+function startGame() {
+    startScreen.classList.add('hidden');
+    initGame();
+}
+
+function initGame() {
+    // 1. Reset Logic
     if (timerInterval) clearInterval(timerInterval);
-    
-    // 2. Hide Modal
     modalElement.classList.add('hidden');
-    
-    // 3. Reset State variables
     currentInput = [];
     isGameActive = true;
+    
+    // 2. Pick Random Sentence (Max 8 words logic applied if needed, but array is safe)
+    const randomIndex = Math.floor(Math.random() * SENTENCES.length);
+    currentTargetSentence = SENTENCES[randomIndex];
+    targetWords = currentTargetSentence.split(" ");
+
+    // 3. Reset UI
+    dockElement.innerHTML = ''; // Clear dock
+    dockElement.appendChild(placeholder); // Restore placeholder
+    placeholder.style.display = 'block';
+    
+    // 4. Start Timer & Spawn
     startTime = Date.now();
-    
-    // 4. Reset DOM Elements
-    dockElement.innerHTML = '';
-    dockElement.classList.remove('shake');
-    
-    // 5. Start New Timer & Spawn
     timerElement.textContent = "00:00";
     timerInterval = setInterval(updateTimer, 1000);
+    
     spawnTargets();
 }
 
+// --- 2. Spawning Logic ---
+
 function spawnTargets() {
-    rangeElement.innerHTML = ''; // Clear board
+    rangeElement.innerHTML = ''; // Clear firing range
     
-    // Shuffle words
-    let shuffledWords = [...WORDS].sort(() => Math.random() - 0.5);
+    // Shuffle words for the targets
+    let shuffledWords = [...targetWords].sort(() => Math.random() - 0.5);
 
     shuffledWords.forEach(word => {
         const el = document.createElement('div');
         el.classList.add('target');
         el.textContent = word;
+        el.dataset.word = word; // Store word in data attribute
         
         // Click Event
         el.addEventListener('click', () => handleShot(word, el));
@@ -55,58 +76,73 @@ function spawnTargets() {
     });
 }
 
+// --- 3. Gameplay Logic ---
+
 function handleShot(word, targetElement) {
     if (!isGameActive) return;
 
     // Visual: Mark target as shot
     targetElement.classList.add('shot');
     
-    // Logic: Add to input
+    // Remove placeholder if it's the first shot
+    if (currentInput.length === 0) {
+        placeholder.style.display = 'none';
+    }
+
+    // Logic: Add to input array
     currentInput.push(word);
     
-    // Visual: Add to Dock
-    const slot = document.createElement('div');
-    slot.classList.add('dock-slot');
-    slot.textContent = word;
-    dockElement.appendChild(slot);
+    // Visual: Add text to dock (Natural Sentence Flow)
+    const wordSpan = document.createElement('span');
+    wordSpan.classList.add('dock-word');
+    wordSpan.textContent = word;
+    dockElement.appendChild(wordSpan);
 
-    // Check if sentence is full
-    if (currentInput.length === WORDS.length) {
+    // Check Win
+    if (currentInput.length === targetWords.length) {
         validateSentence();
     }
 }
 
+// --- 4. The "Clear" Button Logic ---
+function clearInput() {
+    if (!isGameActive) return;
+
+    // 1. Clear logic array
+    currentInput = [];
+
+    // 2. Clear Dock UI
+    dockElement.innerHTML = '';
+    dockElement.appendChild(placeholder);
+    placeholder.style.display = 'block';
+
+    // 3. Restore Targets (Remove 'shot' class)
+    const targets = document.querySelectorAll('.target');
+    targets.forEach(t => t.classList.remove('shot'));
+
+    // Note: Timer does NOT reset. That is the penalty.
+}
+
+// --- 5. Validation ---
+
 function validateSentence() {
     const playerSentence = currentInput.join(" ");
     
-    if (playerSentence === SENTENCE) {
+    if (playerSentence === currentTargetSentence) {
         // WIN
         clearInterval(timerInterval);
         isGameActive = false;
         document.getElementById('final-time').textContent = timerElement.textContent;
         modalElement.classList.remove('hidden');
     } else {
-        // FAIL - Trigger "Reload" logic
-        
-        // 1. Shake animation
+        // FAIL - Trigger Shake & Auto Clear
         dockElement.classList.add('shake');
         
-        // 2. Wait 0.8s then soft reset (keep timer running)
         setTimeout(() => {
-            softResetRound(); 
+            dockElement.classList.remove('shake');
+            clearInput(); // Auto-clear if wrong
         }, 800);
     }
-}
-
-function softResetRound() {
-    // Keeps timer running, but clears progress
-    currentInput = [];
-    dockElement.innerHTML = '';
-    dockElement.classList.remove('shake');
-    
-    // Restore targets
-    const targets = document.querySelectorAll('.target');
-    targets.forEach(t => t.classList.remove('shot'));
 }
 
 function updateTimer() {
@@ -115,6 +151,3 @@ function updateTimer() {
     const seconds = (elapsed % 60).toString().padStart(2, '0');
     timerElement.textContent = `${minutes}:${seconds}`;
 }
-
-// Start game immediately on load
-fullReset();
