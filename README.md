@@ -30,7 +30,7 @@ This project is built with Vanilla JavaScript and relies heavily on DOM manipula
 
 The game is live and hosted online! You do not need to install anything.
 
-1. **Visit the Website:** [Insert Your Hosted Link Here]
+1. **Visit the Website:** [https://mohakgoel-data.github.io/Sentence-Sniper/]
 2. **Start:** Click the **"START CAMPAIGN"** button on the home screen to initialize the game session.
 
 ## ⚠️ Known Limitations & Notes
